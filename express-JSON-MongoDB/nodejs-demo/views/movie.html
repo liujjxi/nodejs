@@ -1,0 +1,17 @@
+<% include header.html %>
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="col-sm-8">
+      <form method="post">
+        <fieldset>
+          <div class="form-group">
+            <legend>
+              <%=label%></legend>
+            <textarea id="c_editor" name="c_editor" class="form-control" rows="10" <%= (movie?'"movie='+movie+'"':'') %>></textarea>
+          </div>
+          <input id="c_save" type="submit" class="btn btn-primary" value="保存">
+        </fieldset>
+        <form></div>
+      </div>
+    </div>
+    <% include footer.html %>
