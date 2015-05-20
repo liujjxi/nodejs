@@ -10,6 +10,7 @@ var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 var settings=require('./settings');
 var flash = require('connect-flash');
+var multer=require('multer');
 
 var app = express();
 
@@ -27,6 +28,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//session
 app.use(session({
   secret: settings.cookieSecret,
   key: settings.db,//cookie name
@@ -36,6 +38,14 @@ app.use(session({
     host: settings.host,
     port: settings.port
   })
+}));
+
+//文件上传功能
+app.use(multer({
+  dest:'./public/images',
+  rename:function(fieldname,filename){
+    return filename.replace(/\W+/g, '-').toLowerCase() + Date.now();
+  }
 }));
 
 routes(app);
