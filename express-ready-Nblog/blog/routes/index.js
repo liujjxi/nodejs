@@ -40,31 +40,32 @@ module.exports = function(app) {
     }
     //生成密码的 md5 值
     var md5 = crypto.createHash('md5'),
-      password = md5.update(req.body.password).digest('hex');
+        password = md5.update(req.body.password).digest('hex');
     var newUser = new User({
-      name: req.body.name,
-      password: password,
-      email: req.body.email
+        name: req.body.name,
+        password: password,
+        email: req.body.email
     });
     //检查用户名是否已经存在 
     User.get(newUser.name, function (err, user) {
-
+      //console.log('user'+user)
+      //console.log('newUser'+newUser)
       if (user) {
         req.flash('error', '用户已存在!');
-        return res.redirect('/reg'); //返回注册页
+        return res.redirect('/reg');//返回注册页
       }
       //如果不存在则新增用户
-      newUser.save(function (err,user) {
+      newUser.save(function (err, user) {
         if (err) {
           req.flash('error', err);
-          return res.redirect('/reg'); //注册失败返回主册页
+          return res.redirect('/reg');//注册失败返回主册页
         }
-        req.session.user = newUser; //用户信息存入 session
-
+        //console.log('save'+user)
+        
+        req.session.user = user;//用户信息存入 session
         req.flash('success', '注册成功!');
-        res.redirect('/'); //注册成功后返回主页
+        res.redirect('/');//注册成功后返回主页
       });
-
     });
   }).get('/login', checkNotLogin).get('/login', function(req, res) {
     res.render('login', {
@@ -100,12 +101,10 @@ module.exports = function(app) {
       success: req.flash('success').toString(),
       error: req.flash('error').toString()
     });
-    console.log(req.session.user)
   }).post('/post', checkLogin).post('/post', function(req, res) {
     var currentUser = req.session.user,
         tags = [req.body.tag1, req.body.tag2, req.body.tag3],
-        post = new Post(currentUser.name, req.body.title,tags, req.body.post);
-    console.log(currentUser)
+        post = new Post(currentUser.name,currentUser.head,req.body.title,tags, req.body.post);
     post.save(function(err) {
       if (err) {
         req.flash('error', err);
@@ -170,6 +169,27 @@ module.exports = function(app) {
         error: req.flash('error').toString()
       });
     });
+  }).get('/links', function (req, res) {
+    res.render('links', {
+      title: '友情链接',
+      user: req.session.user,
+      success: req.flash('success').toString(),
+      error: req.flash('error').toString()
+    });
+  }).get('/search', function (req, res) {
+    Post.search(req.query.keyword, function (err, posts) {
+      if (err) {
+        req.flash('error', err); 
+        return res.redirect('/');
+      }
+      res.render('search', {
+        title: "SEARCH:" + req.query.keyword,
+        posts: posts,
+        user: req.session.user,
+        success: req.flash('success').toString(),
+        error: req.flash('error').toString()
+      });
+    });
   }).get('/u/:name', function (req, res) {
     var page = req.query.p ? parseInt(req.query.p) : 1;
     //检查用户是否存在
@@ -214,8 +234,12 @@ module.exports = function(app) {
     var date = new Date(),
         time = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + 
                date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+    var md5 = crypto.createHash('md5'),
+        email_MD5 = md5.update(req.body.email.toLowerCase()).digest('hex'),
+        head = "http://www.gravatar.com/avatar/" + email_MD5 + "?s=48"; 
     var comment = {
         name: req.body.name,
+        head: head,
         email: req.body.email,
         website: req.body.website,
         time: time,

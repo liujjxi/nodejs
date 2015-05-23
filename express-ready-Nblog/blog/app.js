@@ -13,7 +13,6 @@ var flash = require('connect-flash');
 var multer=require('multer');
 
 var app = express();
-
 // view engine setup
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
@@ -52,13 +51,13 @@ routes(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  /*var err = new Error('Not Found');
   err.status = 404;
-  next(err);
+  next(err);*/
+  res.render('404')
 });
 
 // error handlers
-
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
